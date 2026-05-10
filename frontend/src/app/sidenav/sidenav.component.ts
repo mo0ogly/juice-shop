@@ -5,7 +5,8 @@
 
 import { environment } from '../../environments/environment'
 import { ChallengeService } from '../Services/challenge.service'
-import { Component, EventEmitter, NgZone, type OnInit, Output, inject } from '@angular/core'
+import { Component, EventEmitter, NgZone, type OnInit, Output, computed, inject } from '@angular/core'
+import { JuicelabStateService } from '../juicelab-overlay/services/juicelab-state.service'
 import { SocketIoService } from '../Services/socket-io.service'
 import { AdministrationService } from '../Services/administration.service'
 import { Router, RouterLink } from '@angular/router'
@@ -39,6 +40,15 @@ export class SidenavComponent implements OnInit {
   private readonly router = inject(Router)
   private readonly configurationService = inject(ConfigurationService)
   private readonly loginGuard = inject(LoginGuard)
+  private readonly juicelabState = inject(JuicelabStateService)
+
+  // Cabinet (trophy room) menu entry — appears only after the student has
+  // captured at least one CTF flag, so the hidden /#/cabinet route is not
+  // surfaced before there is a reason to visit it.
+  public readonly cabinetVisible = computed<boolean>(() => {
+    const challenges = this.juicelabState.state()?.challenges ?? {}
+    return Object.values(challenges).some((c: any) => c?.flag_captured === true)
+  })
 
   public applicationName = 'OWASP Juice Shop'
   public showGitHubLink = true

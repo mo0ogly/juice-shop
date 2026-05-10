@@ -100,6 +100,7 @@ import { captchas, verifyCaptcha } from './routes/captcha'
 import * as restoreProgress from './routes/restoreProgress'
 import { checkKeys, nftUnlocked } from './routes/checkKeys'
 import { retrieveLoggedInUser } from './routes/currentUser'
+import * as juicelab from './routes/juicelab'
 import authenticatedUsers from './routes/authenticatedUsers'
 import { securityQuestion } from './routes/securityQuestion'
 import { servePremiumContent } from './routes/premiumReward'
@@ -596,6 +597,14 @@ restoreOverwrittenFilesWithOriginals().then(() => {
   app.post('/rest/user/reset-password', resetPassword())
   app.get('/rest/user/security-question', securityQuestion())
   app.get('/rest/user/whoami', security.updateAuthenticatedUsers(), retrieveLoggedInUser())
+
+  /* JuiceLab phase B - server-side gating for hints / quiz / walkthroughs */
+  app.use('/data/juicelab-private', juicelab.blockPrivateAssets())
+  app.get('/api/juicelab/hint', security.updateAuthenticatedUsers(), juicelab.getHint())
+  app.get('/api/juicelab/quiz/questions', security.updateAuthenticatedUsers(), juicelab.getQuizQuestions())
+  app.post('/api/juicelab/quiz/score', security.updateAuthenticatedUsers(), juicelab.scoreQuiz())
+  app.get('/api/juicelab/walkthrough', security.updateAuthenticatedUsers(), juicelab.getWalkthrough())
+  app.get('/api/juicelab/admin/state', juicelab.getAdminState())
   app.get('/rest/user/authentication-details', authenticatedUsers())
   app.get('/rest/products/search', searchProducts())
   app.get('/rest/basket/:id', retrieveBasket())

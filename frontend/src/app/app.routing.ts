@@ -59,6 +59,23 @@ const loadWeb3SandboxModule = async () => {
 }
 // vuln-code-snippet start adminSectionChallenge scoreBoardChallenge web3SandboxChallenge
 const routes: Routes = [
+  {
+    path: 'juicelab',
+    loadComponent: async () => {
+      const m = await import('./juicelab-overlay/juicelab-panel/juicelab-panel.component')
+      return m.JuicelabPanelComponent
+    }
+  },
+  {
+    // Hidden trophy room — deliberately not surfaced anywhere in the UI.
+    // Pedagogical : students who explore /#/<random> URLs eventually find
+    // their gamified achievements page with the captured CTF flags.
+    path: 'cabinet',
+    loadComponent: async () => {
+      const m = await import('./juicelab-overlay/trophy-room/trophy-room.component')
+      return m.TrophyRoomComponent
+    }
+  },
   { // vuln-code-snippet neutral-line adminSectionChallenge
     path: 'administration', // vuln-code-snippet vuln-line adminSectionChallenge
     component: AdministrationComponent, // vuln-code-snippet neutral-line adminSectionChallenge

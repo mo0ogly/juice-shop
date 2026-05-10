@@ -16,6 +16,18 @@
     }
   </div>
   <div class="badge-group">
+    <!-- juicelab coach (TD only) — placed FIRST so it's the visual anchor for TD challenges -->
+    @if (isTdChallenge()) {
+      <button
+        class="badge not-completable juicelab-coach"
+        type="button"
+        (click)="openCoach()"
+        [matTooltip]="'JUICELAB_COACH_TOOLTIP' | translate"
+      >
+        <mat-icon>school</mat-icon>
+        <span class="juicelab-coach-label">{{ 'JUICELAB_COACH_BADGE' | translate }}</span>
+      </button>
+    }
     <!-- info text if the challenge is unavailable -->
     @if (challenge.disabledEnv !== null && challenge.disabledEnv !== 'safetyMode') {
       <button

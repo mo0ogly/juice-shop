@@ -276,6 +276,15 @@
       </span>
     </a>
   }
+  @if (cabinetVisible()) {
+    <a mat-list-item routerLink="/cabinet" (click)="onToggleSidenav()"
+      aria-label="Open trophy cabinet">
+      <mat-icon matListIcon>military_tech</mat-icon>
+      <span class="menu-text truncate">
+        {{"JUICELAB_TROPHY_TITLE" | translate}}
+      </span>
+    </a>
+  }
   @if (!scoreBoardVisible && offerScoreBoardTutorial) {
     <a mat-list-item (click)="startHackingInstructor()"
       aria-label="Launch beginners tutorial">

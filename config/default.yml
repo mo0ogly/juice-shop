@@ -458,7 +458,10 @@ memories:
     caption: 'Everything up and running!'
     user: bjoernOwasp
 ctf:
-  showFlagsInNotifications: false
+  # Activated for the JuiceLab TD : the student needs to read the HMAC
+  # flag in the solve notification and paste it in the Coach to claim
+  # the +10 bonus. See juicelab-add-challenge skill for the full flow.
+  showFlagsInNotifications: true
   showCountryDetailsInNotifications: none # Options: none  name  flag  both
   countryMapping: ~
   systemWideNotifications:
