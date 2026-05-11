@@ -53,7 +53,7 @@ export const BADGES: Badge[] = [
     label_en: 'Reflective',
     description_fr: 'Tous les journaux after_solve avec qualite > 50 mots.',
     description_en: 'All after_solve journals exceed 50 words.',
-    icon: 'psychology',
+    icon: 'book',
   },
   {
     key: 'apex',
@@ -61,7 +61,7 @@ export const BADGES: Badge[] = [
     label_en: 'Apex Predator',
     description_fr: 'TD complet sans aucun indice consomme.',
     description_en: 'Whole TD solved without consuming a single hint.',
-    icon: 'military_tech',
+    icon: 'grade',
   },
 ]
 

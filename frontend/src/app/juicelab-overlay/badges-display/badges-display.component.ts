@@ -56,7 +56,7 @@ const ALL_KEYS = [
     <mat-card class="badges-display">
       <mat-card-title class="badges-title">
         <span class="badges-title-badge" aria-hidden="true">
-          <mat-icon class="badges-title-icon">workspace_premium</mat-icon>
+          <mat-icon class="badges-title-icon">stars</mat-icon>
         </span>
         <span class="badges-title-text">{{ 'JUICELAB_BADGES_TITLE' | translate }}</span>
       </mat-card-title>
@@ -81,7 +81,7 @@ const ALL_KEYS = [
                 <mat-icon class="icon">{{ badge.icon }}</mat-icon>
               </div>
               <mat-icon class="lock" *ngIf="!badge.earned">lock</mat-icon>
-              <mat-icon class="tick" *ngIf="badge.earned">verified</mat-icon>
+              <mat-icon class="tick" *ngIf="badge.earned">check_circle</mat-icon>
             </div>
             <div class="meta">
               <div class="label">{{ language() === 'fr' ? badge.label_fr : badge.label_en }}</div>
@@ -420,10 +420,10 @@ export class BadgesDisplayComponent {
   }
   private tierIcon(t: Tier): string {
     switch (t) {
-      case 'recon': return 'military_tech'
-      case 'grit':  return 'shield'
-      case 'meta':  return 'auto_awesome'
-      case 'apex':  return 'emoji_events'
+      case 'recon': return 'star_border'
+      case 'grit':  return 'star_half'
+      case 'meta':  return 'star'
+      case 'apex':  return 'stars'
     }
   }
   private fraction(key: string, state: LocalState): { done: number, total: number } {
