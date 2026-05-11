@@ -71,14 +71,48 @@ const ALL_KEYS = [
             matTooltipPosition="above"
           >
             <div class="tier-pill">
-              <mat-icon class="tier-pill-icon">{{ badge.tierIcon }}</mat-icon>
+              <ng-container [ngSwitch]="badge.tier">
+                <svg *ngSwitchCase="'apex'" class="tier-pill-svg trex" viewBox="0 0 24 24"
+                     aria-hidden="true" focusable="false">
+                  <path d="M3.5 15.4 Q3.5 13.4 5.5 13.4 L7.2 13.4 L7.2 9.2 Q7.2 5.2 11.2 5.2 L14.4 5.2 Q17.4 5.2 18.4 7.9 L19.4 9.2 Q21.2 9.4 21.2 11.2 L19.2 11.2 L19.2 12.9 L17.2 12.9 L17.2 14.6 L18.4 18.4 L15.2 18.4 L15.2 14.4 L13.2 14.4 L13.2 18.4 L10.0 18.4 L10.0 13.2 L8.0 13.2 L8.0 18.4 L5.2 18.4 Z"
+                        fill="currentColor"/>
+                  <path d="M19.4 10 L21 9.4 L20 8 L19 8.8 Z" fill="currentColor" opacity="0.55"/>
+                  <circle cx="15.0" cy="8.4" r="0.55" fill="#0b0f17"/>
+                </svg>
+                <svg *ngSwitchCase="'meta'" class="tier-pill-svg medal" viewBox="0 0 24 24"
+                     aria-hidden="true" focusable="false">
+                  <path d="M7 1 L9 1 L11 10 L9 11 L7 7 Z" fill="currentColor" opacity="0.7"/>
+                  <path d="M15 1 L17 1 L17 7 L15 11 L13 10 Z" fill="currentColor" opacity="0.7"/>
+                  <circle cx="12" cy="15" r="6" fill="currentColor"/>
+                  <path d="M12 11.5 L13 14 L15.5 14 L13.6 15.6 L14.4 18 L12 16.5 L9.6 18 L10.4 15.6 L8.5 14 L11 14 Z"
+                        fill="#0b0f17" opacity="0.5"/>
+                </svg>
+                <mat-icon *ngSwitchDefault class="tier-pill-icon">{{ badge.tierIcon }}</mat-icon>
+              </ng-container>
               <span class="tier-pill-text">{{ badge.tierLabel }}</span>
             </div>
             <div class="medal" [style.--pct]="badge.pct + '%'">
               <div class="medal-ring"></div>
               <div class="medal-progress"></div>
               <div class="medal-core">
-                <mat-icon class="icon">{{ badge.icon }}</mat-icon>
+                <ng-container [ngSwitch]="badge.tier">
+                  <svg *ngSwitchCase="'apex'" class="icon-svg trex" viewBox="0 0 24 24"
+                       aria-hidden="true" focusable="false">
+                    <path d="M3.5 15.4 Q3.5 13.4 5.5 13.4 L7.2 13.4 L7.2 9.2 Q7.2 5.2 11.2 5.2 L14.4 5.2 Q17.4 5.2 18.4 7.9 L19.4 9.2 Q21.2 9.4 21.2 11.2 L19.2 11.2 L19.2 12.9 L17.2 12.9 L17.2 14.6 L18.4 18.4 L15.2 18.4 L15.2 14.4 L13.2 14.4 L13.2 18.4 L10.0 18.4 L10.0 13.2 L8.0 13.2 L8.0 18.4 L5.2 18.4 Z"
+                          fill="#ffffff"/>
+                    <path d="M19.4 10 L21 9.4 L20 8 L19 8.8 Z" fill="#ffffff" opacity="0.65"/>
+                    <circle cx="15.0" cy="8.4" r="0.7" fill="#0b0f17"/>
+                  </svg>
+                  <svg *ngSwitchCase="'meta'" class="icon-svg medal" viewBox="0 0 24 24"
+                       aria-hidden="true" focusable="false">
+                    <path d="M7 1 L9 1 L11 10 L9 11 L7 7 Z" fill="#ffffff" opacity="0.75"/>
+                    <path d="M15 1 L17 1 L17 7 L15 11 L13 10 Z" fill="#ffffff" opacity="0.75"/>
+                    <circle cx="12" cy="15" r="6" fill="#ffffff"/>
+                    <path d="M12 11.5 L13 14 L15.5 14 L13.6 15.6 L14.4 18 L12 16.5 L9.6 18 L10.4 15.6 L8.5 14 L11 14 Z"
+                          fill="#0b0f17" opacity="0.55"/>
+                  </svg>
+                  <mat-icon *ngSwitchDefault class="icon">{{ badge.icon }}</mat-icon>
+                </ng-container>
               </div>
               <mat-icon class="lock" *ngIf="!badge.earned">lock</mat-icon>
               <mat-icon class="tick" *ngIf="badge.earned">check_circle</mat-icon>
@@ -206,7 +240,14 @@ const ALL_KEYS = [
       z-index: 2;
     }
     .tier-pill-icon { font-size: 12px; width: 12px; height: 12px; line-height: 12px; }
+    .tier-pill-svg { width: 14px; height: 14px; color: #0b0f17; flex-shrink: 0; }
     .tier-pill-text { line-height: 1; }
+    .icon-svg {
+      width: 34px; height: 34px;
+      filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.45));
+      transition: transform 240ms ease;
+    }
+    .badge.earned .icon-svg { transform: scale(1.04); }
 
     .medal {
       position: relative;
