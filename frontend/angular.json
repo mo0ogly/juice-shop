@@ -32,7 +32,7 @@
             "styles": [
               "src/styles.scss",
               "node_modules/material-icons/iconfont/material-icons.css",
-              "node_modules/flag-icons/css/flag-icons.min.css",
+              "src/assets/flag-icons-patched.min.css",
               "node_modules/font-mfizz/dist/font-mfizz.css",
               "node_modules/highlight.js/styles/github.css",
               "node_modules/codemirror/lib/codemirror.css",

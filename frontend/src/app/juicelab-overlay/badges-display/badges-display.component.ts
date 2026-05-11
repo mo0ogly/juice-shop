@@ -90,52 +90,15 @@ const ALL_KEYS = [
                 </svg>
                 <svg *ngSwitchCase="'meta'" class="tier-pill-svg medal" viewBox="0 0 24 24"
                      aria-hidden="true" focusable="false">
-                  <path d="M7 3 L10 3 L12 10 L9.5 11.5 Z" fill="currentColor" opacity="0.55"/>
-                  <path d="M17 3 L14 3 L12 10 L14.5 11.5 Z" fill="currentColor" opacity="0.9"/>
-                  <circle cx="12" cy="15" r="5.2" fill="currentColor"/>
-                  <circle cx="12" cy="15" r="3.7" fill="none" stroke="#0b0f17" stroke-width="0.5" opacity="0.5"/>
-                  <text x="12" y="17.1" text-anchor="middle" font-family="Arial, sans-serif"
-                        font-size="5.5" font-weight="900" fill="#0b0f17" opacity="0.85">1</text>
+                  <path d="M6.5 2 L10 2 L12 9.2 L9 11 Z" fill="currentColor" opacity="0.5"/>
+                  <path d="M17.5 2 L14 2 L12 9.2 L15 11 Z" fill="currentColor" opacity="0.85"/>
+                  <circle cx="12" cy="15.2" r="6" fill="currentColor"/>
+                  <circle cx="12" cy="15.2" r="4.4" fill="none" stroke="#ffffff" stroke-width="0.5" opacity="0.55"/>
+                  <path d="M12 11.9 L12.95 14.15 L15.4 14.4 L13.55 16.05 L14.1 18.45 L12 17.15 L9.9 18.45 L10.45 16.05 L8.6 14.4 L11.05 14.15 Z" fill="#ffffff" opacity="0.95"/>
                 </svg>
                 <mat-icon *ngSwitchDefault class="tier-pill-icon">{{ badge.tierIcon }}</mat-icon>
               </ng-container>
               <span class="tier-pill-text">{{ badge.tierLabel }}</span>
-            </div>
-            <div class="medal" [style.--pct]="badge.pct + '%'">
-              <div class="medal-ring"></div>
-              <div class="medal-progress"></div>
-              <div class="medal-core">
-                <ng-container [ngSwitch]="badge.tier">
-                  <svg *ngSwitchCase="'apex'" class="icon-svg trex" viewBox="0 0 24 24"
-                       aria-hidden="true" focusable="false">
-                    <g fill="#ffffff">
-                      <rect x="13" y="4" width="9" height="6" rx="0.7"/>
-                      <rect x="13" y="10" width="3" height="2"/>
-                      <rect x="6" y="12" width="10" height="5" rx="0.7"/>
-                      <rect x="3" y="10" width="5" height="2"/>
-                      <rect x="7" y="17" width="2" height="3"/>
-                      <rect x="12" y="17" width="2" height="3"/>
-                      <rect x="6" y="20" width="3" height="1"/>
-                      <rect x="11" y="20" width="3" height="1"/>
-                      <rect x="14.5" y="13" width="1.8" height="0.8"/>
-                    </g>
-                    <rect x="18.5" y="6.2" width="1.6" height="1.6" fill="#0b0f17"/>
-                    <rect x="13" y="10" width="2" height="0.6" fill="#0b0f17" opacity="0.4"/>
-                  </svg>
-                  <svg *ngSwitchCase="'meta'" class="icon-svg medal" viewBox="0 0 24 24"
-                       aria-hidden="true" focusable="false">
-                    <path d="M7 3 L10 3 L12 10 L9.5 11.5 Z" fill="#ffffff" opacity="0.6"/>
-                    <path d="M17 3 L14 3 L12 10 L14.5 11.5 Z" fill="#ffffff" opacity="0.95"/>
-                    <circle cx="12" cy="15" r="5.2" fill="#ffffff"/>
-                    <circle cx="12" cy="15" r="3.7" fill="none" stroke="#0b0f17" stroke-width="0.5" opacity="0.45"/>
-                    <text x="12" y="17.1" text-anchor="middle" font-family="Arial, sans-serif"
-                          font-size="5.5" font-weight="900" fill="#0b0f17" opacity="0.85">1</text>
-                  </svg>
-                  <mat-icon *ngSwitchDefault class="icon">{{ badge.icon }}</mat-icon>
-                </ng-container>
-              </div>
-              <mat-icon class="lock" *ngIf="!badge.earned">lock</mat-icon>
-              <mat-icon class="tick" *ngIf="badge.earned">check_circle</mat-icon>
             </div>
             <div class="meta">
               <div class="label">{{ language() === 'fr' ? badge.label_fr : badge.label_en }}</div>
@@ -243,10 +206,10 @@ const ALL_KEYS = [
     }
 
     /* Tier accent palette - bright + secondary for gradients */
-    .badge[data-tier="recon"] { --tier-color: #38bdf8; --tier-color-2: #6366f1; }
-    .badge[data-tier="grit"]  { --tier-color: #fb923c; --tier-color-2: #f43f5e; }
-    .badge[data-tier="meta"]  { --tier-color: #c084fc; --tier-color-2: #ec4899; }
-    .badge[data-tier="apex"]  { --tier-color: #fbbf24; --tier-color-2: #f97316; }
+    .badge[data-tier="recon"] { --tier-color: #cd7f32; --tier-color-2: #8b4513; }
+    .badge[data-tier="grit"]  { --tier-color: #c0c0c0; --tier-color-2: #808080; }
+    .badge[data-tier="meta"]  { --tier-color: #fbbf24; --tier-color-2: #b8860b; }
+    .badge[data-tier="apex"]  { --tier-color: #e5e4e2; --tier-color-2: #71717a; }
 
     .badge { padding-top: 28px; }
     .tier-pill {
@@ -262,117 +225,6 @@ const ALL_KEYS = [
     .tier-pill-icon { font-size: 12px; width: 12px; height: 12px; line-height: 12px; }
     .tier-pill-svg { width: 14px; height: 14px; color: #0b0f17; flex-shrink: 0; }
     .tier-pill-text { line-height: 1; }
-    .icon-svg {
-      width: 34px; height: 34px;
-      filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.45));
-      transition: transform 240ms ease;
-    }
-    .badge.earned .icon-svg { transform: scale(1.04); }
-
-    .medal {
-      position: relative;
-      width: 76px;
-      height: 76px;
-      flex: 0 0 76px;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      transition: transform 240ms ease;
-      --pct: 0%;
-    }
-    .medal-progress {
-      position: absolute;
-      inset: 0;
-      border-radius: 50%;
-      background:
-        conic-gradient(var(--tier-color) 0%, var(--tier-color-2) var(--pct, 0%), rgba(127, 127, 127, 0.15) var(--pct, 0%));
-      mask: radial-gradient(circle, transparent 60%, #000 62%);
-      -webkit-mask: radial-gradient(circle, transparent 60%, #000 62%);
-      transition: --pct 600ms ease;
-    }
-    .medal-core {
-      position: relative;
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      background:
-        radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.18), transparent 55%),
-        radial-gradient(circle at 70% 80%, rgba(0, 0, 0, 0.35), transparent 60%),
-        linear-gradient(135deg, color-mix(in srgb, var(--tier-color) 35%, #0b0f17), color-mix(in srgb, var(--tier-color-2) 30%, #0b0f17));
-      border: 1.5px solid color-mix(in srgb, var(--tier-color) 50%, transparent);
-      box-shadow: inset 0 -6px 14px rgba(0, 0, 0, 0.35);
-    }
-    .badge.earned .medal {
-      transform: rotate(-3deg) scale(1.04);
-    }
-    .badge.earned .medal-core {
-      background:
-        radial-gradient(circle at 28% 22%, rgba(255, 255, 255, 0.55), transparent 45%),
-        radial-gradient(circle at 70% 78%, rgba(0, 0, 0, 0.4), transparent 55%),
-        linear-gradient(135deg, var(--tier-color), var(--tier-color-2));
-      border-color: var(--tier-color);
-      box-shadow:
-        inset 0 -8px 16px rgba(0, 0, 0, 0.42),
-        0 0 18px color-mix(in srgb, var(--tier-color) 55%, transparent);
-      animation: pulse-glow 2.8s ease-in-out infinite;
-    }
-    @keyframes pulse-glow {
-      0%, 100% { box-shadow: inset 0 -8px 16px rgba(0, 0, 0, 0.42), 0 0 18px color-mix(in srgb, var(--tier-color) 55%, transparent); }
-      50%      { box-shadow: inset 0 -8px 16px rgba(0, 0, 0, 0.42), 0 0 28px color-mix(in srgb, var(--tier-color) 85%, transparent); }
-    }
-    .medal-ring {
-      position: absolute;
-      inset: -3px;
-      border-radius: 50%;
-      border: 1px dashed transparent;
-      pointer-events: none;
-    }
-    .badge.earned .medal-ring {
-      border-color: color-mix(in srgb, var(--tier-color) 70%, transparent);
-      animation: spin 14s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    .icon {
-      font-size: 30px;
-      width: 30px;
-      height: 30px;
-      opacity: 0.85;
-      color: rgba(255, 255, 255, 0.92);
-      transition: opacity 200ms ease, transform 240ms ease;
-    }
-    .badge.earned .icon {
-      opacity: 1;
-      color: #ffffff;
-      filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.5));
-    }
-
-    .lock, .tick {
-      position: absolute;
-      bottom: 2px;
-      right: 2px;
-      font-size: 18px;
-      width: 22px;
-      height: 22px;
-      line-height: 22px;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      z-index: 1;
-    }
-    .lock {
-      background: rgba(0, 0, 0, 0.78);
-      color: rgba(255, 255, 255, 0.78);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-    }
-    .tick {
-      background: var(--tier-color);
-      color: #0b0f17;
-      border: 1px solid rgba(0, 0, 0, 0.45);
-    }
-
     .meta { min-width: 0; flex: 1; }
     .label {
       font-weight: 800;
