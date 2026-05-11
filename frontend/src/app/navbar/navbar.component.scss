@@ -192,3 +192,48 @@ mat-search-bar {
     width: auto !important;
   }
 }
+
+.nav-juicelab-btn {
+  position: relative;
+
+  .nav-juicelab-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #f97316 0%, #db2777 55%, #7c3aed 100%);
+    box-shadow:
+      0 4px 12px rgba(219, 39, 119, 0.45),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+    position: relative;
+    overflow: hidden;
+    transition: transform 180ms ease, box-shadow 180ms ease;
+  }
+
+  .nav-juicelab-badge::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 10px;
+    background: radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.45), transparent 55%);
+    pointer-events: none;
+  }
+
+  .nav-juicelab-icon {
+    color: #ffffff;
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+    line-height: 22px;
+    filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.3));
+  }
+
+  &:hover .nav-juicelab-badge {
+    transform: translateY(-1px) scale(1.04);
+    box-shadow:
+      0 6px 18px rgba(219, 39, 119, 0.6),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.28);
+  }
+}

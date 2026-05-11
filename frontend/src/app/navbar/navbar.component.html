@@ -112,10 +112,12 @@
       </button>
     }
 
-    <button mat-icon-button routerLink="/juicelab" class="buttons nav-square-button"
-      aria-label="Coach pedagogique JuiceLab"
-      matTooltip="Coach pedagogique JuiceLab" matTooltipPosition="below">
-      <mat-icon>school</mat-icon>
+    <button mat-icon-button routerLink="/juicelab" class="buttons nav-square-button nav-juicelab-btn"
+      [attr.aria-label]="'JUICELAB_PANEL_TITLE' | translate"
+      [matTooltip]="'JUICELAB_PANEL_TITLE' | translate" matTooltipPosition="below">
+      <span class="nav-juicelab-badge">
+        <mat-icon class="nav-juicelab-icon">school</mat-icon>
+      </span>
     </button>
 
     <button id="navbarLanguageButton" [matMenuTriggerFor]="menu" mat-button class="buttons nav-square-button"

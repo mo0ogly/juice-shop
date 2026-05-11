@@ -9,6 +9,7 @@ import { Component, computed, inject } from '@angular/core'
 import { MatCardModule } from '@angular/material/card'
 import { MatIconModule } from '@angular/material/icon'
 import { MatTooltipModule } from '@angular/material/tooltip'
+import { TranslateModule } from '@ngx-translate/core'
 
 import { type Badge, type LocalState } from '../models/juicelab.types'
 import { BADGES, JuicelabBadgeEngineService } from '../services/juicelab-badge-engine.service'
@@ -45,12 +46,14 @@ const ALL_KEYS = [
 @Component({
   selector: 'juicelab-badges-display',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatIconModule, MatTooltipModule],
+  imports: [CommonModule, MatCardModule, MatIconModule, MatTooltipModule, TranslateModule],
   template: `
     <mat-card class="badges-display">
-      <mat-card-title>
-        <mat-icon>workspace_premium</mat-icon>
-        Badges
+      <mat-card-title class="badges-title">
+        <span class="badges-title-badge" aria-hidden="true">
+          <mat-icon class="badges-title-icon">workspace_premium</mat-icon>
+        </span>
+        <span class="badges-title-text">{{ 'JUICELAB_BADGES_TITLE' | translate }}</span>
       </mat-card-title>
       <mat-card-content>
         <div class="grid">
@@ -77,7 +80,7 @@ const ALL_KEYS = [
               <div class="progress" *ngIf="badge.earned">
                 <span class="chip earned-chip">
                   <mat-icon class="chip-icon">check_circle</mat-icon>
-                  {{ language() === 'fr' ? 'Acquis' : 'Earned' }}
+                  {{ 'JUICELAB_BADGE_EARNED' | translate }}
                 </span>
               </div>
             </div>
@@ -89,6 +92,29 @@ const ALL_KEYS = [
   styles: [`
     :host { display: block; color: inherit; }
     .badges-display { max-width: 720px; margin: 16px 0; color: inherit; }
+    .badges-title { display: flex; gap: 12px; align-items: center; margin-bottom: 8px; }
+    .badges-title-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0;
+      background: linear-gradient(135deg, #fbbf24 0%, #f97316 50%, #db2777 100%);
+      box-shadow: 0 6px 16px rgba(251, 191, 36, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+      position: relative; overflow: hidden;
+    }
+    .badges-title-badge::after {
+      content: ""; position: absolute; inset: 0; border-radius: 12px;
+      background: radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.4), transparent 55%);
+      pointer-events: none;
+    }
+    .badges-title-icon {
+      font-size: 26px; width: 26px; height: 26px; line-height: 26px; color: #ffffff;
+      filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.3));
+    }
+    .badges-title-text {
+      background: linear-gradient(90deg, #fbbf24, #f97316, #db2777);
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent; color: transparent;
+      font-weight: 700; letter-spacing: 0.3px;
+    }
     .grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -123,13 +149,28 @@ const ALL_KEYS = [
     .badge:hover::before { opacity: 0.18; }
 
     .badge.earned {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
       border-color: var(--tier-color);
       box-shadow:
         0 0 0 1px var(--tier-color) inset,
-        0 10px 30px -12px var(--tier-color);
+        0 12px 36px -10px var(--tier-color),
+        0 0 24px -4px color-mix(in srgb, var(--tier-color) 60%, transparent);
     }
-    .badge.earned::before { opacity: 0.22; }
+    .badge.earned::before { opacity: 0.28; }
+    .badge.earned::after {
+      content: ""; position: absolute; inset: 0;
+      background: linear-gradient(110deg, transparent 0%, transparent 38%,
+        color-mix(in srgb, var(--tier-color) 22%, transparent) 50%,
+        transparent 62%, transparent 100%);
+      transform: translateX(-100%);
+      animation: shine 4.2s ease-in-out 1.2s infinite;
+      pointer-events: none;
+    }
+    @keyframes shine {
+      0% { transform: translateX(-100%); }
+      40% { transform: translateX(100%); }
+      100% { transform: translateX(100%); }
+    }
 
     /* Tier accent palette - bright on dark, also OK on light */
     .badge[data-tier="recon"] { --tier-color: #38bdf8; }
