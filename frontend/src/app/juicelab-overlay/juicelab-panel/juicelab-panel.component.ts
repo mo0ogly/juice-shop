@@ -88,7 +88,7 @@ import { TranslateModule } from '@ngx-translate/core'
         consulte les indices gradues, remplis ton journal de bord, valide le quiz.
       </p>
 
-      <div class="join-banner" *ngIf="joinBannerKey()">
+      <div class="join-banner" *ngIf="isAuthenticated() && joinBannerKey()">
         <mat-icon class="join-banner-icon">{{ joinBannerIcon() }}</mat-icon>
         <span class="join-banner-text">{{ joinBannerKey() | translate }}</span>
         <span class="join-banner-meta" *ngIf="joinSummary()">{{ joinSummary() }}</span>
