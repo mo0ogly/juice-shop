@@ -32,7 +32,7 @@ juicelab-overlay/
 - hints-panel/                     (5 hints révélables, score live, progression forcée)
 - journal-form/                    (textarea before/after avec word count)
 - quiz-form/                       (3 questions, validation par expected_keywords)
-- badges-display/                  (grid des badges gagnés/à débloquer)
+- badges-display/                  (grid des badges gagnés/à débloquer, palette métaux : bronze / argent / or / platine, sans disque médaille)
 ```
 
 ## Installation dans un fork Juice Shop
@@ -155,6 +155,41 @@ Si le réseau est down, les events sont queued en LocalStorage
 4. Le composant `HintsPanel` force la progression N1 -> N5, on ne peut pas
    sauter à N5 directement. À débattre pédagogiquement
 5. Les tests Karma ne sont pas encore écrits
+
+## Badges - palette tier
+
+| Tier | Label | --tier-color | --tier-color-2 |
+|------|-------|--------------|----------------|
+| recon | BRONZE | `#cd7f32` | `#8b4513` |
+| grit  | SILVER | `#c0c0c0` | `#808080` |
+| meta  | GOLD   | `#fbbf24` | `#b8860b` |
+| apex  | PLATINUM | `#e5e4e2` | `#71717a` |
+
+Le bloc visuel `.medal` (ring + progress conique + core + lock/tick) a été
+retiré du template. La carte badge garde tier-pill + label + description +
+barre de progression + chip "earned".
+
+## Build prod - patch flag-icons
+
+`ng build --configuration production` plantait avec
+`Two output files share the same path but have different contents: media/<flag>.svg`
+parce que `flag-icons.min.css` référence à la fois `flags/4x3/<x>.svg` et
+`flags/1x1/<x>.svg`, qu'esbuild aplatit tous les deux vers `media/<x>.svg`.
+
+Fix livré dans le repo : `frontend/src/assets/flag-icons-patched.min.css`
+(rules `.fis` 1x1 strippées, `url()` réécrites vers
+`../../node_modules/flag-icons/flags/4x3/...`). Le `styles[]` d'`angular.json`
+pointe sur ce fichier au lieu du CSS upstream. Aucun impact runtime visible
+(la classe `.fis` carrée n'est pas utilisée par Juice Shop).
+
+Si tu veux régénérer le patch après un bump `flag-icons` :
+
+```bash
+sed 's|\.fi-[a-z0-9-]*\.fis{background-image:url(\.\./flags/1x1/[a-z0-9-]*\.svg)}||g' \
+  node_modules/flag-icons/css/flag-icons.min.css \
+  | sed 's|url(\.\./flags/|url(../../node_modules/flag-icons/flags/|g' \
+  > src/assets/flag-icons-patched.min.css
+```
 
 ## License
 
