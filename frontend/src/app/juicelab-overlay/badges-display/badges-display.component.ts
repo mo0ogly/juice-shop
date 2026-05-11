@@ -90,12 +90,12 @@ const ALL_KEYS = [
                 </svg>
                 <svg *ngSwitchCase="'meta'" class="tier-pill-svg medal" viewBox="0 0 24 24"
                      aria-hidden="true" focusable="false">
-                  <path d="M5 1 L9 1 L12 10 L9 12 L5 5 Z" fill="currentColor" opacity="0.65"/>
-                  <path d="M19 1 L15 1 L12 10 L15 12 L19 5 Z" fill="currentColor" opacity="0.85"/>
-                  <circle cx="12" cy="15.5" r="6.5" fill="currentColor"/>
-                  <circle cx="12" cy="15.5" r="4.6" fill="none" stroke="#0b0f17" stroke-width="0.5" opacity="0.45"/>
-                  <path d="M12 12 L13.2 14.4 L15.9 14.8 L13.95 16.7 L14.4 19.4 L12 18.1 L9.6 19.4 L10.05 16.7 L8.1 14.8 L10.8 14.4 Z"
-                        fill="#0b0f17" opacity="0.55"/>
+                  <path d="M7 3 L10 3 L12 10 L9.5 11.5 Z" fill="currentColor" opacity="0.55"/>
+                  <path d="M17 3 L14 3 L12 10 L14.5 11.5 Z" fill="currentColor" opacity="0.9"/>
+                  <circle cx="12" cy="15" r="5.2" fill="currentColor"/>
+                  <circle cx="12" cy="15" r="3.7" fill="none" stroke="#0b0f17" stroke-width="0.5" opacity="0.5"/>
+                  <text x="12" y="17.1" text-anchor="middle" font-family="Arial, sans-serif"
+                        font-size="5.5" font-weight="900" fill="#0b0f17" opacity="0.85">1</text>
                 </svg>
                 <mat-icon *ngSwitchDefault class="tier-pill-icon">{{ badge.tierIcon }}</mat-icon>
               </ng-container>
@@ -124,12 +124,12 @@ const ALL_KEYS = [
                   </svg>
                   <svg *ngSwitchCase="'meta'" class="icon-svg medal" viewBox="0 0 24 24"
                        aria-hidden="true" focusable="false">
-                    <path d="M5 1 L9 1 L12 10 L9 12 L5 5 Z" fill="#ffffff" opacity="0.72"/>
-                    <path d="M19 1 L15 1 L12 10 L15 12 L19 5 Z" fill="#ffffff" opacity="0.92"/>
-                    <circle cx="12" cy="15.5" r="6.5" fill="#ffffff"/>
-                    <circle cx="12" cy="15.5" r="4.6" fill="none" stroke="#0b0f17" stroke-width="0.5" opacity="0.4"/>
-                    <path d="M12 12 L13.2 14.4 L15.9 14.8 L13.95 16.7 L14.4 19.4 L12 18.1 L9.6 19.4 L10.05 16.7 L8.1 14.8 L10.8 14.4 Z"
-                          fill="#0b0f17" opacity="0.55"/>
+                    <path d="M7 3 L10 3 L12 10 L9.5 11.5 Z" fill="#ffffff" opacity="0.6"/>
+                    <path d="M17 3 L14 3 L12 10 L14.5 11.5 Z" fill="#ffffff" opacity="0.95"/>
+                    <circle cx="12" cy="15" r="5.2" fill="#ffffff"/>
+                    <circle cx="12" cy="15" r="3.7" fill="none" stroke="#0b0f17" stroke-width="0.5" opacity="0.45"/>
+                    <text x="12" y="17.1" text-anchor="middle" font-family="Arial, sans-serif"
+                          font-size="5.5" font-weight="900" fill="#0b0f17" opacity="0.85">1</text>
                   </svg>
                   <mat-icon *ngSwitchDefault class="icon">{{ badge.icon }}</mat-icon>
                 </ng-container>
