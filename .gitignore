@@ -54,6 +54,7 @@ config/*.yml
 !config/fbctf.yml
 !config/default.yml
 !config/juicebox.yml
+!config/juicelab.yml
 !config/quiet.yml
 !config/test.yml
 !config/7ms.yml

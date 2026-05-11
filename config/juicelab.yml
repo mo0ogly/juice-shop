@@ -1,0 +1,23 @@
+# JuiceLab overlay config (NODE_ENV=juicelab).
+#
+# This overlay is loaded by node-config on top of config/default.yml when
+# the Juice Shop process is started with NODE_ENV=juicelab. Its only
+# purpose right now is to disable Google OAuth on local-loopback hosts :
+# upstream default.yml lists http://127.0.0.1:3000 and http://localhost:3000
+# in authorizedRedirects, but the upstream demo Google clientId does not
+# trust those origins, so clicking "Login with Google" always fails. The
+# JuiceLab pedagogical lab does not need Google OAuth (students log in
+# with admin@juice-sh.op / admin123 or self-register), so we hide the
+# button entirely by clearing the redirects list. The login component
+# (frontend/src/app/login/login.component.ts) sets oauthUnavailable=true
+# when no authorized redirect matches the current host, which keeps the
+# button hidden via the @if (!oauthUnavailable) guard in the template.
+#
+# To re-enable Google OAuth in a class that has actual credentials,
+# override this overlay with another (eg config/juicelab-prod.yml) that
+# restores valid clientId + authorizedRedirects entries.
+
+application:
+  googleOauth:
+    clientId: ''
+    authorizedRedirects: []
