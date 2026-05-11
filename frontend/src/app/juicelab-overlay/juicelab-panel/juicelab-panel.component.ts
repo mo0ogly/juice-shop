@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common'
 import { Component, OnDestroy, computed, inject, signal } from '@angular/core'
 import { FormsModule } from '@angular/forms'
 import { MatButtonModule } from '@angular/material/button'
+import { MatButtonToggleModule } from '@angular/material/button-toggle'
 import { MatCardModule } from '@angular/material/card'
 import { MatFormFieldModule } from '@angular/material/form-field'
 import { MatIconModule } from '@angular/material/icon'
@@ -29,7 +30,7 @@ import { HelpDialogComponent } from '../help-dialog/help-dialog.component'
 import { HintsPanelComponent } from '../hints-panel/hints-panel.component'
 import { JournalFormComponent } from '../journal-form/journal-form.component'
 import { QuizFormComponent } from '../quiz-form/quiz-form.component'
-import { TranslateModule } from '@ngx-translate/core'
+import { TranslateModule, TranslateService } from '@ngx-translate/core'
 
 @Component({
   selector: 'juicelab-panel',
@@ -43,6 +44,7 @@ import { TranslateModule } from '@ngx-translate/core'
     MatSelectModule,
     MatFormFieldModule,
     MatButtonModule,
+    MatButtonToggleModule,
     MatTabsModule,
     TranslateModule,
     BriefingPanelComponent,
@@ -71,7 +73,7 @@ import { TranslateModule } from '@ngx-translate/core'
 
       <h1>
         <mat-icon>school</mat-icon>
-        Coach pedagogique JuiceLab
+        {{ 'JUICELAB_PANEL_TITLE' | translate }}
         <button mat-icon-button class="join-settings-btn" (click)="helpDialogOpen.set(true)"
                 [title]="'JUICELAB_HELP_TITLE' | translate"
                 aria-label="JuiceLab help">
@@ -83,10 +85,7 @@ import { TranslateModule } from '@ngx-translate/core'
           <mat-icon>settings</mat-icon>
         </button>
       </h1>
-      <p class="intro">
-        Plateforme d accompagnement pour le TD Juice Shop. Choisis un challenge,
-        consulte les indices gradues, remplis ton journal de bord, valide le quiz.
-      </p>
+      <p class="intro">{{ 'JUICELAB_PANEL_INTRO' | translate }}</p>
 
       <div class="join-banner" *ngIf="isAuthenticated() && joinBannerKey()">
         <mat-icon class="join-banner-icon">{{ joinBannerIcon() }}</mat-icon>
@@ -99,28 +98,25 @@ import { TranslateModule } from '@ngx-translate/core'
           <div class="auth-row">
             <mat-icon class="auth-icon">lock_person</mat-icon>
             <div class="auth-text">
-              <div class="auth-title">Connecte-toi a Juice Shop</div>
-              <div class="auth-desc">
-                Les indices, le quiz et le journal sont reserves aux comptes
-                authentifies. Etapes :
-              </div>
+              <div class="auth-title">{{ 'JUICELAB_AUTH_TITLE' | translate }}</div>
+              <div class="auth-desc">{{ 'JUICELAB_AUTH_DESC' | translate }}</div>
               <ol class="auth-steps">
-                <li>Bouton "Account" en haut a droite -&gt; Login (ou Register puis Login).</li>
-                <li>Saisir email + mot de passe et cliquer "Log in".</li>
-                <li>Revenir ici, le panneau bascule automatiquement.</li>
+                <li>{{ 'JUICELAB_AUTH_STEP_1' | translate }}</li>
+                <li>{{ 'JUICELAB_AUTH_STEP_2' | translate }}</li>
+                <li>{{ 'JUICELAB_AUTH_STEP_3' | translate }}</li>
               </ol>
               <div class="auth-diag">
-                Diagnostic : token = <strong>{{ tokenDiag() }}</strong>
+                {{ 'JUICELAB_AUTH_DIAG' | translate }}<strong>{{ tokenDiag() }}</strong>
               </div>
             </div>
             <div class="auth-actions">
               <button mat-flat-button color="primary" routerLink="/login">
                 <mat-icon>login</mat-icon>
-                Aller au login
+                {{ 'JUICELAB_AUTH_GO_LOGIN' | translate }}
               </button>
               <button mat-stroked-button (click)="recheckAuth()">
                 <mat-icon>refresh</mat-icon>
-                J ai login
+                {{ 'JUICELAB_AUTH_RECHECK' | translate }}
               </button>
             </div>
           </div>
@@ -128,13 +124,65 @@ import { TranslateModule } from '@ngx-translate/core'
       </mat-card>
 
       <ng-container *ngIf="isAuthenticated()">
+        <div class="diff-filter-row">
+          <span class="diff-filter-label">{{ 'JUICELAB_FILTER_BY_DIFFICULTY' | translate }}</span>
+          <mat-button-toggle-group multiple [value]="difficultyFilterArr()"
+                                   (change)="onDifficultyFilterChange($event.value)"
+                                   class="diff-filter-group">
+            <mat-button-toggle *ngFor="let d of [1,2,3,4,5,6]" [value]="d" class="diff-filter-btn">
+              <span class="diff-filter-num">{{ d }}</span>
+              <mat-icon class="diff-filter-icon">star</mat-icon>
+            </mat-button-toggle>
+          </mat-button-toggle-group>
+          <button mat-stroked-button class="diff-filter-reset" (click)="resetDifficultyFilter()"
+                  [disabled]="difficultyFilterArr().length === 6">
+            <mat-icon>refresh</mat-icon> {{ 'JUICELAB_FILTER_RESET_ALL' | translate }}
+          </button>
+        </div>
+
+        <div class="diff-filter-row">
+          <span class="diff-filter-label">{{ 'JUICELAB_FILTER_STATUS' | translate }}</span>
+          <mat-button-toggle-group [value]="statusFilter()"
+                                   (change)="statusFilter.set($event.value)">
+            <mat-button-toggle value="all">{{ 'JUICELAB_FILTER_STATUS_ALL' | translate }}</mat-button-toggle>
+            <mat-button-toggle value="done">
+              <mat-icon class="status-icon-done">check_circle</mat-icon>
+              {{ 'JUICELAB_FILTER_STATUS_DONE' | translate }}
+            </mat-button-toggle>
+            <mat-button-toggle value="todo">
+              <mat-icon class="status-icon-todo">radio_button_unchecked</mat-icon>
+              {{ 'JUICELAB_FILTER_STATUS_TODO' | translate }}
+            </mat-button-toggle>
+          </mat-button-toggle-group>
+          <span class="progress-pill">
+            <mat-icon class="status-icon-done">check_circle</mat-icon>
+            {{ doneCount() }} / {{ totalCount() }}
+            <span class="progress-pct">({{ progressPct() }}%)</span>
+          </span>
+        </div>
+
         <mat-form-field appearance="outline">
-          <mat-label>Challenge en cours</mat-label>
+          <mat-label>{{ 'JUICELAB_CURRENT_CHALLENGE' | translate }} ({{ filteredTotal() }})</mat-label>
           <mat-select [(ngModel)]="selectedKey">
             <mat-select-trigger>{{ selectedName() }}</mat-select-trigger>
-            <mat-optgroup *ngFor="let dj of djs()" [label]="'DJ' + dj">
-              <mat-option *ngFor="let c of byDj()[dj]" [value]="c.key">
-                {{ c.position }}. {{ c.name_official }}
+            <mat-optgroup *ngFor="let dj of filteredDjs()"
+                          [label]="'DJ' + dj + ' (' + byDjFiltered()[dj].length + ')'">
+              <mat-option *ngFor="let c of byDjFiltered()[dj]" [value]="c.key"
+                          [class.opt-done]="doneSet().has(c.key)">
+                <span class="opt-row">
+                  <mat-icon class="opt-status"
+                            [class.opt-status-done]="doneSet().has(c.key)"
+                            [attr.aria-label]="(doneSet().has(c.key) ? 'JUICELAB_STATUS_DONE_ARIA' : 'JUICELAB_STATUS_TODO_ARIA') | translate">
+                    {{ doneSet().has(c.key) ? 'check_circle' : 'radio_button_unchecked' }}
+                  </mat-icon>
+                  <span class="opt-pos">{{ c.position }}.</span>
+                  <span class="opt-name">{{ c.name_official }}</span>
+                  <span class="opt-stars" [attr.aria-label]="('JUICELAB_DIFFICULTY_ARIA' | translate:{n: c.difficulty})">
+                    <mat-icon *ngFor="let i of [1,2,3,4,5,6]"
+                              class="opt-star"
+                              [class.filled]="i <= c.difficulty">{{ i <= c.difficulty ? 'star' : 'star_border' }}</mat-icon>
+                  </span>
+                </span>
               </mat-option>
             </mat-optgroup>
           </mat-select>
@@ -211,6 +259,50 @@ import { TranslateModule } from '@ngx-translate/core'
       margin-left: auto; font-size: 11px; opacity: 0.7;
       font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
     }
+    .diff-filter-row {
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+      margin: 0 0 12px; padding: 8px 12px;
+      border: 1px solid rgba(127, 127, 127, 0.25); border-radius: 8px;
+      background: rgba(127, 127, 127, 0.04);
+    }
+    .diff-filter-label { font-size: 12px; opacity: 0.75; font-weight: 600; }
+    .diff-filter-group { flex-wrap: wrap; }
+    .diff-filter-btn { min-width: 56px; }
+    .diff-filter-num { font-weight: 700; margin-right: 2px; }
+    .diff-filter-icon { font-size: 14px; width: 14px; height: 14px; color: #f59e0b; vertical-align: middle; }
+    .diff-filter-reset { font-size: 12px; }
+    .opt-row { display: flex; align-items: center; gap: 8px; width: 100%; }
+    .opt-pos { opacity: 0.6; min-width: 32px; text-align: right; font-variant-numeric: tabular-nums; }
+    .opt-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .opt-stars { display: inline-flex; flex-shrink: 0; margin-left: auto; }
+    .opt-star {
+      font-size: 14px; width: 14px; height: 14px; line-height: 14px;
+      color: rgba(127, 127, 127, 0.45);
+    }
+    .opt-star.filled { color: #f59e0b; }
+    .opt-status {
+      font-size: 18px; width: 18px; height: 18px; line-height: 18px;
+      color: rgba(127, 127, 127, 0.4); flex-shrink: 0;
+    }
+    .opt-status.opt-status-done { color: #16a34a; }
+    .opt-done .opt-name { text-decoration: line-through; opacity: 0.7; }
+    .status-icon-done {
+      font-size: 16px; width: 16px; height: 16px; line-height: 16px;
+      color: #16a34a; vertical-align: middle;
+    }
+    .status-icon-todo {
+      font-size: 16px; width: 16px; height: 16px; line-height: 16px;
+      color: rgba(127, 127, 127, 0.6); vertical-align: middle;
+    }
+    .progress-pill {
+      margin-left: auto; display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 10px; border-radius: 999px;
+      background: rgba(22, 163, 74, 0.08);
+      border: 1px solid rgba(22, 163, 74, 0.35);
+      font-size: 13px; font-weight: 600; color: #16a34a;
+      font-variant-numeric: tabular-nums;
+    }
+    .progress-pct { opacity: 0.75; font-weight: 400; }
   `],
 })
 export class JuicelabPanelComponent implements OnDestroy {
@@ -220,6 +312,7 @@ export class JuicelabPanelComponent implements OnDestroy {
   private readonly bridgeSvc = inject(JuicelabBridgeService)
   private readonly authSvc = inject(JuicelabAuthService)
   private readonly router = inject(Router)
+  private readonly translate = inject(TranslateService)
 
   selectedKey = ''
   readonly isAuthenticated = this.authSvc.isAuthenticated
@@ -248,9 +341,10 @@ export class JuicelabPanelComponent implements OnDestroy {
 
   tokenDiag(): string {
     const snap = this.authSvc.tokenSnapshot()
-    if (!snap) return 'absent (localStorage.token = null)'
-    if (snap.length <= 20) return `trop court (len=${snap.length}, head=${snap.head})`
-    return `present (len=${snap.length}, head=${snap.head})`
+    if (!snap) return this.translate.instant('JUICELAB_TOKEN_ABSENT')
+    const params = { len: snap.length, head: snap.head }
+    if (snap.length <= 20) return this.translate.instant('JUICELAB_TOKEN_TOO_SHORT', params)
+    return this.translate.instant('JUICELAB_TOKEN_PRESENT', params)
   }
 
   readonly challenges = toSignal(
@@ -272,8 +366,69 @@ export class JuicelabPanelComponent implements OnDestroy {
 
   readonly djs = computed(() => Object.keys(this.byDj()).map(Number).sort())
 
+  readonly difficultyFilter = signal<Set<number>>(new Set([1, 2, 3, 4, 5, 6]))
+  readonly difficultyFilterArr = computed(() => Array.from(this.difficultyFilter()).sort())
+
+  onDifficultyFilterChange(value: number[]): void {
+    const next = new Set(value.length === 0 ? [1, 2, 3, 4, 5, 6] : value)
+    this.difficultyFilter.set(next)
+  }
+
+  resetDifficultyFilter(): void {
+    this.difficultyFilter.set(new Set([1, 2, 3, 4, 5, 6]))
+  }
+
+  readonly statusFilter = signal<'all' | 'done' | 'todo'>('all')
+
+  readonly doneSet = computed(() => {
+    const out = new Set<string>()
+    const m = this.stateSvc.state().challenges
+    for (const k of Object.keys(m)) {
+      if (m[k]?.flag_captured) out.add(k)
+    }
+    return out
+  })
+
+  readonly doneCount = computed(() => {
+    let n = 0
+    const ds = this.doneSet()
+    for (const c of this.challenges()) if (ds.has(c.key)) n++
+    return n
+  })
+  readonly totalCount = computed(() => this.challenges().length)
+  readonly progressPct = computed(() => {
+    const t = this.totalCount()
+    return t === 0 ? 0 : Math.round((this.doneCount() / t) * 100)
+  })
+
+  readonly byDjFiltered = computed(() => {
+    const allowed = this.difficultyFilter()
+    const src = this.byDj()
+    const st = this.statusFilter()
+    const ds = this.doneSet()
+    const out: Record<number, SelectedChallenge[]> = {}
+    for (const dj of Object.keys(src)) {
+      const arr = src[+dj].filter(c => {
+        if (!allowed.has(c.difficulty)) return false
+        if (st === 'done' && !ds.has(c.key)) return false
+        if (st === 'todo' && ds.has(c.key)) return false
+        return true
+      })
+      if (arr.length > 0) out[+dj] = arr
+    }
+    return out
+  })
+
+  readonly filteredDjs = computed(() => Object.keys(this.byDjFiltered()).map(Number).sort())
+  readonly filteredTotal = computed(() => {
+    let n = 0
+    const m = this.byDjFiltered()
+    for (const dj of Object.keys(m)) n += m[+dj].length
+    return n
+  })
+
   readonly selectedName = computed(() => {
-    if (!this.selectedKey) return 'Choisir un challenge'
+    if (!this.selectedKey) return this.translate.instant('JUICELAB_CHALLENGE_PICK')
     const c = this.challenges().find(x => x.key === this.selectedKey)
     return c ? `DJ${c.demi_journee} - ${c.name_official}` : this.selectedKey
   })
