@@ -119,6 +119,24 @@ export interface JuicelabConfig {
   default_language: Lang
 }
 
+/** Status of the join workflow for the current student. Mirrors the server-side
+ *  students.status column ('pending' | 'validated' | 'rejected') with two extra
+ *  client-only values : 'unknown' when the dashboard reports no row, and
+ *  'unconfigured' before the student has filled the cohort-join-dialog. */
+export type JoinStatus = 'unconfigured' | 'pending' | 'validated' | 'rejected' | 'unknown'
+
+/** Local override for the cohort-join workflow. Takes precedence over the
+ *  values baked into /assets/juicelab/config.json so a Juice Shop instance
+ *  can serve multiple cohorts via runtime UX without a rebuild. */
+export interface JoinState {
+  schema_version: 1
+  dashboard_url: string
+  cohort_id: string
+  email: string
+  status: JoinStatus
+  last_checked_at: string | null
+}
+
 /** Quiz question stripped of expected answers (phase B). */
 export interface QuizQuestionPublic {
   type: 'free_text' | 'multiple_choice'

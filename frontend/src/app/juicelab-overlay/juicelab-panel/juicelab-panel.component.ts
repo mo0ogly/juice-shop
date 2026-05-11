@@ -24,6 +24,8 @@ import { JuicelabStateService } from '../services/juicelab-state.service'
 import { JuicelabSyncService } from '../services/juicelab-sync.service'
 import { BadgesDisplayComponent } from '../badges-display/badges-display.component'
 import { BriefingPanelComponent } from '../briefing-panel/briefing-panel.component'
+import { CohortJoinDialogComponent } from '../cohort-join-dialog/cohort-join-dialog.component'
+import { HelpDialogComponent } from '../help-dialog/help-dialog.component'
 import { HintsPanelComponent } from '../hints-panel/hints-panel.component'
 import { JournalFormComponent } from '../journal-form/journal-form.component'
 import { QuizFormComponent } from '../quiz-form/quiz-form.component'
@@ -44,6 +46,8 @@ import { TranslateModule } from '@ngx-translate/core'
     MatTabsModule,
     TranslateModule,
     BriefingPanelComponent,
+    CohortJoinDialogComponent,
+    HelpDialogComponent,
     HintsPanelComponent,
     JournalFormComponent,
     QuizFormComponent,
@@ -51,14 +55,44 @@ import { TranslateModule } from '@ngx-translate/core'
   ],
   template: `
     <div class="panel-root">
+      <juicelab-cohort-join-dialog
+        [open]="joinDialogOpen()"
+        [dismissable]="joinStatus() !== 'unconfigured'"
+        [initialDashboardUrl]="bakedDashboardUrl"
+        [initialCohortId]="bakedCohortId"
+        (closed)="onJoinDialogClosed()"
+        (joined)="onJoinDialogJoined()"
+      ></juicelab-cohort-join-dialog>
+
+      <juicelab-help-dialog
+        [open]="helpDialogOpen()"
+        (closed)="helpDialogOpen.set(false)"
+      ></juicelab-help-dialog>
+
       <h1>
         <mat-icon>school</mat-icon>
         Coach pedagogique JuiceLab
+        <button mat-icon-button class="join-settings-btn" (click)="helpDialogOpen.set(true)"
+                [title]="'JUICELAB_HELP_TITLE' | translate"
+                aria-label="JuiceLab help">
+          <mat-icon>help_outline</mat-icon>
+        </button>
+        <button mat-icon-button class="join-settings-btn" (click)="openJoinDialog()"
+                [title]="'JUICELAB_JOIN_SETTINGS_REOPEN' | translate"
+                aria-label="Cohort settings">
+          <mat-icon>settings</mat-icon>
+        </button>
       </h1>
       <p class="intro">
         Plateforme d accompagnement pour le TD Juice Shop. Choisis un challenge,
         consulte les indices gradues, remplis ton journal de bord, valide le quiz.
       </p>
+
+      <div class="join-banner" *ngIf="joinBannerKey()">
+        <mat-icon class="join-banner-icon">{{ joinBannerIcon() }}</mat-icon>
+        <span class="join-banner-text">{{ joinBannerKey() | translate }}</span>
+        <span class="join-banner-meta" *ngIf="joinSummary()">{{ joinSummary() }}</span>
+      </div>
 
       <mat-card *ngIf="!isAuthenticated()" class="auth-banner">
         <mat-card-content>
@@ -159,6 +193,24 @@ import { TranslateModule } from '@ngx-translate/core'
       font-size: 12px; opacity: 0.75; margin-top: 6px;
     }
     .auth-actions { display: flex; flex-direction: column; gap: 8px; min-width: 160px; }
+    .join-settings-btn { margin-left: auto; opacity: 0.6; }
+    .join-settings-btn:hover { opacity: 1; }
+    .join-banner {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; border-radius: 8px;
+      border: 1px solid rgba(14, 116, 144, 0.4);
+      background: rgba(14, 116, 144, 0.08);
+      font-size: 13px; margin-bottom: 16px;
+    }
+    .join-banner.rejected {
+      border-color: rgba(185, 28, 28, 0.4);
+      background: rgba(185, 28, 28, 0.08);
+    }
+    .join-banner-icon { font-size: 20px; width: 20px; height: 20px; flex-shrink: 0; }
+    .join-banner-meta {
+      margin-left: auto; font-size: 11px; opacity: 0.7;
+      font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    }
   `],
 })
 export class JuicelabPanelComponent implements OnDestroy {
@@ -172,6 +224,27 @@ export class JuicelabPanelComponent implements OnDestroy {
   selectedKey = ''
   readonly isAuthenticated = this.authSvc.isAuthenticated
   private authPoll: ReturnType<typeof setInterval> | null = null
+
+  bakedDashboardUrl = ''
+  bakedCohortId = ''
+  readonly joinDialogOpen = signal(false)
+  readonly helpDialogOpen = signal(false)
+  readonly joinStatus = computed(() => this.stateSvc.join().status)
+  readonly joinSummary = computed(() => {
+    const j = this.stateSvc.join()
+    if (!j.cohort_id) return ''
+    return `${j.cohort_id} @ ${j.dashboard_url}`
+  })
+  readonly joinBannerKey = computed(() => {
+    switch (this.joinStatus()) {
+      case 'pending':   return 'JUICELAB_JOIN_STATUS_PENDING'
+      case 'rejected':  return 'JUICELAB_JOIN_STATUS_REJECTED'
+      case 'unknown':   return 'JUICELAB_JOIN_STATUS_UNKNOWN'
+      case 'validated': return ''
+      default:          return ''
+    }
+  })
+  readonly joinBannerIcon = computed(() => this.joinStatus() === 'rejected' ? 'block' : 'hourglass_top')
 
   tokenDiag(): string {
     const snap = this.authSvc.tokenSnapshot()
@@ -219,13 +292,25 @@ export class JuicelabPanelComponent implements OnDestroy {
     this.bridgeSvc.start()
     this.packSvc.getConfig().subscribe({
       next: (cfg) => {
-        this.stateSvc.ensureStudent(cfg.cohort_id, cfg.default_language)
-        this.syncSvc.configure(cfg.dashboard_url, cfg.instance_label)
+        this.bakedDashboardUrl = cfg.dashboard_url || ''
+        this.bakedCohortId = cfg.cohort_id || ''
+        const join = this.stateSvc.join()
+        // First launch : student has not filled the cohort-join-dialog
+        // yet. We deliberately do NOT call ensureStudent() here so the
+        // overlay does not seed a stale cohort_id from the baked config
+        // before the user has confirmed it via the modal. The dialog
+        // takes care of seeding student.token + state.cohort on submit.
+        if (join.status === 'unconfigured') {
+          this.joinDialogOpen.set(true)
+        } else {
+          this.stateSvc.ensureStudent(join.cohort_id || cfg.cohort_id, cfg.default_language)
+          this.syncSvc.configure(cfg.dashboard_url, cfg.instance_label)
+        }
       },
       error: () => {
-        // Do not fabricate a cohort id : config.json must be the single
-        // source of truth. Leaving state empty triggers the auth banner
-        // path which prompts the user to fix the config + reload.
+        // Even if config.json is missing, the student can still configure
+        // a dashboard URL manually via the join dialog.
+        this.joinDialogOpen.set(true)
       },
     })
     // Poll the Juice Shop login token every 2s so the panel switches
@@ -240,5 +325,28 @@ export class JuicelabPanelComponent implements OnDestroy {
 
   recheckAuth(): void {
     this.authSvc.recheck()
+  }
+
+  openJoinDialog(): void {
+    this.joinDialogOpen.set(true)
+  }
+
+  onJoinDialogClosed(): void {
+    this.joinDialogOpen.set(false)
+  }
+
+  onJoinDialogJoined(): void {
+    this.joinDialogOpen.set(false)
+    // After the join request is registered server-side, configure the
+    // sync service with the override URL + cohort. The polling loop will
+    // pick up the 'validated' transition without a reload.
+    const join = this.stateSvc.join()
+    this.syncSvc.configure(join.dashboard_url, this.bakedInstanceLabelFallback())
+  }
+
+  private bakedInstanceLabelFallback(): string {
+    // The baked config.json instance_label survives across cohorts, so we
+    // can reuse the last value the pack service has loaded.
+    return ''
   }
 }

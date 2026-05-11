@@ -9,17 +9,64 @@ import { Injectable, signal } from '@angular/core'
 import {
   type ChallengeState,
   type HintLevel,
+  type JoinState,
+  type JoinStatus,
   type Lang,
   type LocalState,
   SCORE_INITIAL,
 } from '../models/juicelab.types'
 
 const STORAGE_KEY = 'juicelab_state_v1'
+const JOIN_KEY = 'juicelab_join_v1'
 
 @Injectable({ providedIn: 'root' })
 export class JuicelabStateService {
   /** Reactive snapshot of the current state. UI components subscribe via toObservable or read sync. */
   readonly state = signal<LocalState>(this.load())
+
+  /** Reactive snapshot of the join workflow override. Empty (unconfigured)
+   *  on first launch until the student fills the cohort-join-dialog. */
+  readonly join = signal<JoinState>(this.loadJoin())
+
+  /** Persist the student's join intent (URL + cohort + email). status starts
+   *  at 'pending' on creation; subsequent status changes from the dashboard
+   *  poll are written via setJoinStatus(). */
+  setJoin(dashboardUrl: string, cohortId: string, email: string): void {
+    const next: JoinState = {
+      schema_version: 1,
+      dashboard_url: dashboardUrl.trim(),
+      cohort_id: cohortId.trim(),
+      email: email.trim().toLowerCase(),
+      status: 'pending',
+      last_checked_at: null,
+    }
+    this.persistJoin(next)
+    // Also align the legacy student.cohort field so existing event paths
+    // (sync, journal, hints) keep emitting under the new cohort id.
+    const current = this.state()
+    if (current.student.cohort !== next.cohort_id) {
+      this.update({
+        ...current,
+        student: { ...current.student, cohort: next.cohort_id },
+      })
+    }
+  }
+
+  /** Update only the workflow status after a /api/student/status poll. */
+  setJoinStatus(status: JoinStatus): void {
+    const cur = this.join()
+    if (cur.status === status) {
+      this.persistJoin({ ...cur, last_checked_at: new Date().toISOString() })
+      return
+    }
+    this.persistJoin({ ...cur, status, last_checked_at: new Date().toISOString() })
+  }
+
+  /** Clear the join override (re-trigger first-launch modal). */
+  clearJoin(): void {
+    localStorage.removeItem(JOIN_KEY)
+    this.join.set(this.emptyJoin())
+  }
 
   /** Initialize state for a fresh student session. Generates a token if absent. */
   ensureStudent(cohort: string, language: Lang): void {
@@ -186,6 +233,34 @@ export class JuicelabStateService {
       student: { token: '', cohort: '', language: 'fr' },
       challenges: {},
       badges_earned: [],
+    }
+  }
+
+  private persistJoin(next: JoinState): void {
+    this.join.set(next)
+    localStorage.setItem(JOIN_KEY, JSON.stringify(next))
+  }
+
+  private loadJoin(): JoinState {
+    const raw = localStorage.getItem(JOIN_KEY)
+    if (!raw) return this.emptyJoin()
+    try {
+      const parsed = JSON.parse(raw) as JoinState
+      if (parsed.schema_version === 1) return parsed
+    } catch {
+      /* fall through */
+    }
+    return this.emptyJoin()
+  }
+
+  private emptyJoin(): JoinState {
+    return {
+      schema_version: 1,
+      dashboard_url: '',
+      cohort_id: '',
+      email: '',
+      status: 'unconfigured',
+      last_checked_at: null,
     }
   }
 }
