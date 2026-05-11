@@ -1,3 +1,13 @@
+> **Pedagogical fork** — this is a fork of [OWASP Juice Shop](https://github.com/juice-shop/juice-shop)
+> with a non-invasive overlay (briefing / hints / journal / quiz) and an
+> optional companion dashboard for academic and corporate training labs.
+> Covers **110 of the 111** native challenges (csrfChallenge is upstream-deprecated).
+> The OWASP core (routes, datasets, libs, challenges, vulnerabilities)
+> is **unchanged**. See [PEDAGOGY_COMPANION.md](PEDAGOGY_COMPANION.md)
+> for scope and design details. Upstream attribution preserved below.
+
+---
+
 # ![Juice Shop Logo](https://raw.githubusercontent.com/juice-shop/juice-shop/master/frontend/src/assets/public/images/JuiceShop_Logo_100px.png) OWASP Juice Shop
 
 [![OWASP Flagship](https://img.shields.io/badge/owasp-flagship%20project-48A646.svg)](https://owasp.org/projects/#sec-flagships)
