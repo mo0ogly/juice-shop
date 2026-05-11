@@ -71,9 +71,11 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core'
         (closed)="helpDialogOpen.set(false)"
       ></juicelab-help-dialog>
 
-      <h1>
-        <mat-icon>school</mat-icon>
-        {{ 'JUICELAB_PANEL_TITLE' | translate }}
+      <h1 class="panel-h1">
+        <span class="panel-h1-badge" aria-hidden="true">
+          <mat-icon class="panel-h1-icon">school</mat-icon>
+        </span>
+        <span class="panel-h1-title">{{ 'JUICELAB_PANEL_TITLE' | translate }}</span>
         <button mat-icon-button class="join-settings-btn" (click)="helpDialogOpen.set(true)"
                 [title]="'JUICELAB_HELP_TITLE' | translate"
                 aria-label="JuiceLab help">
@@ -223,6 +225,29 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core'
   styles: [`
     .panel-root { max-width: 900px; margin: 24px auto; padding: 16px; color: inherit; }
     h1 { display: flex; gap: 8px; align-items: center; margin: 0 0 8px; color: inherit; }
+    .panel-h1 { gap: 14px; }
+    .panel-h1-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 48px; height: 48px; border-radius: 14px; flex-shrink: 0;
+      background: linear-gradient(135deg, #f97316 0%, #db2777 50%, #7c3aed 100%);
+      box-shadow: 0 6px 18px rgba(219, 39, 119, 0.35), inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+      position: relative; overflow: hidden;
+    }
+    .panel-h1-badge::after {
+      content: ""; position: absolute; inset: 0; border-radius: 14px;
+      background: radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.35), transparent 55%);
+      pointer-events: none;
+    }
+    .panel-h1-icon {
+      font-size: 30px; width: 30px; height: 30px; line-height: 30px;
+      color: #ffffff; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.25));
+    }
+    .panel-h1-title {
+      background: linear-gradient(90deg, #f97316, #db2777, #7c3aed);
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent; color: transparent;
+      font-weight: 700; letter-spacing: 0.2px;
+    }
     .intro { opacity: 0.75; margin-bottom: 16px; }
     mat-form-field { width: 100%; max-width: 480px; margin-bottom: 16px; }
     .auth-banner {
@@ -441,7 +466,16 @@ export class JuicelabPanelComponent implements OnDestroy {
   readonly selectedChallengeCategory = computed(() => this.selectedMeta()?.category ?? '')
   readonly selectedChallengeDifficulty = computed(() => this.selectedMeta()?.difficulty ?? 0)
 
+  private langSub: { unsubscribe(): void } | null = null
+
+  private syncPackLang(): void {
+    const cur = (this.translate.currentLang ?? this.translate.getDefaultLang() ?? 'en').toLowerCase()
+    this.stateSvc.setLanguage(cur.startsWith('en') ? 'en' : 'fr')
+  }
+
   ngOnInit(): void {
+    this.syncPackLang()
+    this.langSub = this.translate.onLangChange.subscribe(() => this.syncPackLang())
     // Idempotent : wires the Juice Shop core 'challenge solved' socket
     // listener, only on the first call across the whole session.
     this.bridgeSvc.start()
@@ -476,6 +510,7 @@ export class JuicelabPanelComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     if (this.authPoll) clearInterval(this.authPoll)
+    if (this.langSub) { this.langSub.unsubscribe(); this.langSub = null }
   }
 
   recheckAuth(): void {
