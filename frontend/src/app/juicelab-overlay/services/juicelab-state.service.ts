@@ -5,6 +5,7 @@
  */
 
 import { Injectable, signal } from '@angular/core'
+import { TranslateService } from '@ngx-translate/core'
 
 import {
   type ChallengeState,
@@ -27,6 +28,24 @@ export class JuicelabStateService {
   /** Reactive snapshot of the join workflow override. Empty (unconfigured)
    *  on first launch until the student fills the cohort-join-dialog. */
   readonly join = signal<JoinState>(this.loadJoin())
+
+  constructor (private readonly translate: TranslateService) {
+    // Single source of truth for the render language. student.language is a
+    // persisted snapshot read by the briefing / hints / quiz panels. It used
+    // to be synced only inside coach-dialog, so the /#/juicelab panel route
+    // (which never opens that dialog) kept rendering a stale language while
+    // the chrome followed the live Juice Shop ngx-translate language. We mirror
+    // the live UI language here so every render path stays consistent.
+    this.syncLanguageFromUi()
+    this.translate.onLangChange.subscribe(() => this.syncLanguageFromUi())
+  }
+
+  /** Mirror the persisted student language onto the live Juice Shop UI language. */
+  private syncLanguageFromUi (): void {
+    const cur = (this.translate.currentLang ?? this.translate.getDefaultLang() ?? '').toLowerCase()
+    if (!cur) return
+    this.setLanguage(cur.startsWith('en') ? 'en' : 'fr')
+  }
 
   /** Persist the student's join intent (URL + cohort + email). status starts
    *  at 'pending' on creation; subsequent status changes from the dashboard
