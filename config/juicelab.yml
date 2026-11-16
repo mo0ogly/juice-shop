@@ -17,7 +17,24 @@
 # override this overlay with another (eg config/juicelab-prod.yml) that
 # restores valid clientId + authorizedRedirects entries.
 
+#
+# Safety mode: upstream default.yml sets challenges.safetyMode=auto, which
+# disables every challenge listed with disabledEnv (Docker, Heroku, Windows)
+# when Juice Shop detects that environment (lib/utils.ts
+# getChallengeEnablementStatus). The JuiceLab image runs in Docker, so the
+# TD challenge "Reflected XSS" (disabledEnv: [Docker, Heroku]) was silently
+# disabled: routes/trackOrder.ts strips the payload and the challenge can
+# never be solved. The TD parcours requires it, hence safetyMode=disabled.
+# This also re-enables the other "Danger Zone" challenges (RCE, XXE, ...):
+# only acceptable when the instance listens on the student's loopback
+# (docker-compose.yml binds JUICELAB_DEMO_BIND=127.0.0.1 by default).
+# Instances shared on a classroom LAN (docker/provision.py) start with
+# NODE_ENV=production instead and keep the upstream protection.
+
 application:
   googleOauth:
     clientId: ''
     authorizedRedirects: []
+
+challenges:
+  safetyMode: disabled
